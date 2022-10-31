@@ -18,25 +18,26 @@
             <%
                 Class.forName("com.mysql.jdbc.Driver");
                 Connection conexion = null;            
-                String insertAlus ="INSERT INTO tb_alus (apyn, dni) VALUES (?,?)";
+                String insertAlus ="INSERT INTO tb_alus (apyn, dni,estado) VALUES (?,?,0)";
+                
                 String insertRel = "INSERT INTO alus_curs (id_alus, id_curs) VALUES "
                         + "((SELECT id_alus FROM tb_alus WHERE dni=?),"
                         + "(SELECT id_curs FROM tb_curs WHERE nom_curs=?))";
                 String selectInsc= "SELECT inscriptos FROM tb_curs WHERE nom_curs=?";
-                String updateInsc= "UPDATE tb_curs SET inscriptos=? where nom_curs=?";;
+                String updateInsc= "UPDATE tb_curs SET inscriptos=? where nom_curs=?";/*Se incrementa la cantidad de inscriptos a los cursos*/
                
                 PreparedStatement consultaAlus = null;
                 PreparedStatement consultaRel = null;
                 PreparedStatement consultaInsc = null;
                 PreparedStatement consultaUpdate = null;
                 
-                String vApyn=request.getParameter("apyn");
+                String vApyn=request.getParameter("apyn");/*getParamenter recupera el dato desde una pagina web*/
                 String vDni= request.getParameter("dni");
                 String vCurso=request.getParameter("cursos");
                 try {
                     conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/prueba1", "root", "");
                     consultaAlus = conexion.prepareStatement(insertAlus);
-                    consultaAlus.setString(1, vPyn);
+                    consultaAlus.setString(1, vApyn);/*getString recupera el dato de una cadena de caracteres, de listaInsc*/
                     consultaAlus.setString(2, vDni);
                     consultaAlus.execute();
                     
@@ -47,12 +48,12 @@
                     
                     consultaInsc = conexion.prepareStatement(selectInsc);
                     consultaInsc.setString(1, vCurso);
-                    ResultSet listaInsc = consultaInsc.executeQuery();
+                    ResultSet listaInsc = consultaInsc.executeQuery();/*Contiene la cantidad de inscriptos*/
                     listaInsc.next();
                     
                     /*out.print("Inscriptos"+ listaInsc.getObject("inscrit}ptos"));*/
-                    int vInscriptos = (Integer)listaInsc.getObject("inscriptos");
-                    vInscriptos= vInscriptos+1;
+                    int vInscriptos = (Integer)listaInsc.getObject("inscriptos");/*getObject recupera el dato del objeto vInscriptos*/
+                    vInscriptos= vInscriptos+1; /*Aumenta la cantidad de alumnos*/
                     
                     consultaUpdate = conexion.prepareStatement(updateInsc);
                     consultaUpdate.setInt(1,vInscriptos)
@@ -61,8 +62,8 @@
                     
                     out.print("FELICIDADES TE INSCRIBISTE");
                 } catch (Exception e) {
-                    /*e.printStackTrace();
-                    out.println("exepcion </br>");
+                    e.printStackTrace();
+                   /* out.println("exepcion </br>");
                     out.println("detalle de la consulta: </br>");
                     out.println(consultaAlus + "</br>");
                     out.println(consultaRel + "</br>");*/
